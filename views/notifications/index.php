@@ -48,7 +48,7 @@ if ($_SESSION['role'] === 'admin') {
             $bg = $n['is_read'] ? '' : 'background:#EFF6FF';
             echo '<div class="d-flex gap-3 px-4 py-3 border-bottom" style="'.$bg.'">';
             echo '<div style="flex:1"><div class="fw-semibold small">'.sanitize($n['title']).'</div>';
-            echo '<div class="text-muted small">'.sanitize($n['message']).'</div>';
+            echo '<div class="text-muted small">'.sanitize(explode('|', $n['message'], 2)[0]).'</div>';
             echo '<div class="text-muted" style="font-size:.72rem">'.timeAgo($n['created_at']).'</div></div>';
             echo '<div class="d-flex gap-1">';
             if (!$n['is_read']) echo '<a href="?action=mark_read&id='.$n['id'].'" class="btn btn-xs btn-outline-primary"><i class="fas fa-check"></i></a>';
@@ -120,7 +120,20 @@ if ($_SESSION['role'] === 'admin') {
                   <span style="background:var(--u-gold);color:var(--u-primary);font-size:.6rem;font-weight:700;padding:2px 7px;border-radius:50px;margin-left:6px;vertical-align:middle">NEW</span>
                   <?php endif; ?>
                 </div>
-                <div style="font-size:.83rem;color:var(--u-gray);margin-top:4px;line-height:1.5"><?= sanitize($n['message']) ?></div>
+                <div style="font-size:.83rem;color:var(--u-gray);margin-top:4px;line-height:1.5">
+                  <?php
+                    $parts   = explode('|', $n['message'], 2);
+                    $msgText = $parts[0];
+                    $msgLink = isset($parts[1]) ? trim($parts[1]) : null;
+                  ?>
+                  <?php if ($msgLink): ?>
+                    <a href="<?= sanitize($msgLink) ?>" style="color:var(--u-gray);text-decoration:none">
+                      <?= sanitize($msgText) ?>
+                    </a>
+                  <?php else: ?>
+                    <?= sanitize($msgText) ?>
+                  <?php endif; ?>
+                </div>
                 <div style="font-size:.73rem;color:#94A3B8;margin-top:6px">
                   <i class="fas fa-clock me-1"></i><?= timeAgo($n['created_at']) ?> · <?= formatDateTime($n['created_at'],'d M Y H:i') ?>
                 </div>

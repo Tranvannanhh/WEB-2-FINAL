@@ -86,7 +86,7 @@ function handleCreate() {
 
     if ($bookingId) {
         // Notify user
-        sendNotification($userId, 'Booking Submitted', 'Your booking for ' . $facility['facility_name'] . ' on ' . formatDate($date) . ' has been submitted and is awaiting approval.');
+        sendNotification($userId, 'Booking Submitted', 'Your booking for ' . $facility['facility_name'] . ' on ' . formatDate($date) . ' has been submitted and is awaiting approval.|' . APP_URL . '/views/bookings/view.php?id=' . $bookingId);
 
         // Notify all admins
         $userModel = new User();

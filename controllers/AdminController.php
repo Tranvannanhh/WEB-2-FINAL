@@ -59,8 +59,8 @@ function handleApproveBooking($decision) {
 
     $title = $decision === 'approved' ? 'Booking Approved ✓' : 'Booking Rejected';
     $msg   = $decision === 'approved'
-        ? "Your booking for {$booking['facility_name']} on " . formatDate($booking['booking_date']) . " has been approved. Please arrive on time."
-        : "Your booking for {$booking['facility_name']} on " . formatDate($booking['booking_date']) . " was rejected." . ($note ? " Reason: $note" : '');
+        ? "Your booking for {$booking['facility_name']} on " . formatDate($booking['booking_date']) . " has been approved. Please arrive on time.|" . APP_URL . "/views/bookings/view.php?id={$bookingId}"
+        : "Your booking for {$booking['facility_name']} on " . formatDate($booking['booking_date']) . " was rejected." . ($note ? " Reason: $note" : '') . "|" . APP_URL . "/views/bookings/view.php?id={$bookingId}";
 
     sendNotification($booking['user_id'], $title, $msg);
 

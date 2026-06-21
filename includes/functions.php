@@ -170,6 +170,17 @@ function getUnreadNotificationCount($userId) {
 }
 
 /**
+ * Get facility image src — supports external URLs and local uploads
+ */
+function facilityImgSrc($imagePath) {
+    if (empty($imagePath)) return '';
+    if (strpos($imagePath, 'http://') === 0 || strpos($imagePath, 'https://') === 0) {
+        return $imagePath;
+    }
+    return APP_URL . '/uploads/facilities/' . $imagePath;
+}
+
+/**
  * Truncate text to specified length
  */
 function truncate($text, $length = 100) {

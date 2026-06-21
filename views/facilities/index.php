@@ -140,7 +140,7 @@ $pageTitle = 'Browse Facilities';
           <div class="u-facility-card">
             <div class="u-facility-img">
               <?php if (!empty($f['image_path'])): ?>
-                <img src="<?= APP_URL ?>/uploads/facilities/<?= sanitize($f['image_path']) ?>" alt="<?= sanitize($f['facility_name']) ?>">
+                <img src="<?= facilityImgSrc($f['image_path']) ?>" alt="<?= sanitize($f['facility_name']) ?>">
               <?php endif; ?>
               <div class="u-facility-img-overlay"></div>
               <div class="u-facility-icon-bg"><i class="fas fa-<?= getFacilityIcon($f['facility_type']) ?>"></i></div>

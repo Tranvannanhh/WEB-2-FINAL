@@ -38,14 +38,18 @@ $(function () {
       }
       data.notifications.forEach(function (n) {
         const cls = n.is_read == 0 ? 'unread' : '';
+        // parse optional link from message (format: "text|url")
+        const parts = n.message.split('|');
+        const msgText = parts[0];
+        const msgLink = parts.length > 1 ? parts[1].trim() : null;
         $list.append(`
-          <div class="u-notif-item ${cls}" data-id="${n.id}" style="cursor:pointer">
+          <div class="u-notif-item ${cls}" data-id="${n.id}" data-link="${msgLink || ''}" style="cursor:pointer">
             <div style="width:36px;height:36px;border-radius:50%;background:${n.is_read==0?'#c9a84c':'#f1f5f9'};color:${n.is_read==0?'#1a1a2e':'#64748B'};display:flex;align-items:center;justify-content:center;flex-shrink:0">
               <i class="fas fa-bell" style="font-size:.8rem"></i>
             </div>
             <div style="flex:1;min-width:0">
               <div style="font-size:.8rem;font-weight:600;color:#1a1a2e">${escHtml(n.title)}</div>
-              <div style="font-size:.73rem;color:#64748B;margin-top:2px">${escHtml(n.message.substring(0,80))}${n.message.length>80?'…':''}</div>
+              <div style="font-size:.73rem;color:#64748B;margin-top:2px">${escHtml(msgText.substring(0,80))}${msgText.length>80?'…':''}</div>
               <div style="font-size:.68rem;color:#94A3B8;margin-top:3px">${n.time_ago}</div>
             </div>
           </div>`);
@@ -69,9 +73,13 @@ $(function () {
   });
 
   $(document).on('click', '.u-notif-item', function () {
-    const id = $(this).data('id');
+    const id   = $(this).data('id');
+    const link = $(this).data('link');
     $(this).removeClass('unread');
     $.post(APP_URL + '/api/notifications.php', { action: 'mark_read', id: id });
+    if (link) {
+      window.location.href = link;
+    }
   });
 
   /* ── SweetAlert helpers ── */
@@ -121,11 +129,12 @@ $(function () {
         $(this).DataTable({
           responsive: true,
           pageLength: 15,
+          lengthChange: false,
           lengthMenu: [10, 15, 25, 50],
-          dom: "<'row'<'col-sm-6'l><'col-sm-6'f>>" +
+          dom: "<'row'<'col-sm-6'><'col-sm-6'f>>" +
                "<'row'<'col-12'tr>>" +
                "<'row'<'col-sm-5'i><'col-sm-7'p>>",
-          language: { search: '', searchPlaceholder: 'Search…', lengthMenu: 'Show _MENU_' },
+          language: { search: '', searchPlaceholder: 'Search…' },
         });
       }
     });

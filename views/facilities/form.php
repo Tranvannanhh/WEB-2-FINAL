@@ -120,7 +120,7 @@ $pageTitle = $isEdit ? 'Edit Facility' : 'Add Facility';
               <label class="form-label">Facility Image</label>
               <?php if (!empty($facility['image_path'])): ?>
               <div class="mb-2">
-                <img src="<?= APP_URL ?>/uploads/facilities/<?= sanitize($facility['image_path']) ?>" height="80" class="rounded border">
+                <img src="<?= facilityImgSrc($facility['image_path']) ?>" height="80" class="rounded border">
               </div>
               <?php endif; ?>
               <input type="file" class="form-control" name="image" accept="image/*">

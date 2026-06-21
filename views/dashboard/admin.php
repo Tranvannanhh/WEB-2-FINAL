@@ -28,7 +28,73 @@ $reportStats    = $reportModel->countByStatus();
 $usersByRole    = $userModel->countByRole();
 
 $pageTitle = 'Admin Dashboard';
-$extraScripts = '<script>const APP_URL = "' . APP_URL . '";</script>';
+
+// Build chart data trước
+$weeklyStats = [];
+$weekLabels  = [];
+$weekApproved = [];
+$weekPending  = [];
+$weekRejected = [];
+for ($i = 6; $i >= 0; $i--) {
+    $date = date('Y-m-d', strtotime("-$i days"));
+    $label = date('D d/m', strtotime("-$i days"));
+    $weekLabels[] = $label;
+    $stmt = getDB()->prepare("SELECT
+        SUM(CASE WHEN status='approved' THEN 1 ELSE 0 END) as approved,
+        SUM(CASE WHEN status='pending'  THEN 1 ELSE 0 END) as pending,
+        SUM(CASE WHEN status='rejected' THEN 1 ELSE 0 END) as rejected
+        FROM bookings WHERE booking_date = ?");
+    $stmt->execute([$date]);
+    $row = $stmt->fetch();
+    $weekApproved[] = (int)($row['approved'] ?? 0);
+    $weekPending[]  = (int)($row['pending']  ?? 0);
+    $weekRejected[] = (int)($row['rejected'] ?? 0);
+}
+$statusLabels = ['Pending','Approved','Rejected','Cancelled','Completed'];
+$statusData   = [
+    $bookingsByStatus['pending']   ?? 0,
+    $bookingsByStatus['approved']  ?? 0,
+    $bookingsByStatus['rejected']  ?? 0,
+    $bookingsByStatus['cancelled'] ?? 0,
+    $bookingsByStatus['completed'] ?? 0,
+];
+$ftLabels = [];
+$ftData   = [];
+foreach ($facilityByType as $type => $cnt) {
+    $ftLabels[] = ucfirst(str_replace('_', ' ', $type));
+    $ftData[]   = $cnt;
+}
+
+$extraScripts = '<script>const APP_URL = "' . APP_URL . '";
+new Chart(document.getElementById("bookingChart"), {
+  type: "bar",
+  data: {
+    labels: ' . json_encode($weekLabels) . ',
+    datasets: [
+      { label: "Approved", data: ' . json_encode($weekApproved) . ', backgroundColor: "#10B981", borderRadius: 5 },
+      { label: "Pending",  data: ' . json_encode($weekPending)  . ', backgroundColor: "#F59E0B", borderRadius: 5 },
+      { label: "Rejected", data: ' . json_encode($weekRejected) . ', backgroundColor: "#EF4444", borderRadius: 5 },
+    ]
+  },
+  options: { responsive: true, plugins: { legend: { position: "top" } }, scales: { x: { stacked: false }, y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+});
+new Chart(document.getElementById("statusChart"), {
+  type: "doughnut",
+  data: {
+    labels: ' . json_encode($statusLabels) . ',
+    datasets: [{ data: ' . json_encode($statusData) . ', backgroundColor: ["#F59E0B","#10B981","#EF4444","#94A3B8","#06B6D4"], borderWidth: 0, hoverOffset: 6 }]
+  },
+  options: { responsive: true, cutout: "65%", plugins: { legend: { position: "bottom", labels: { boxWidth: 10, font: { size: 11 } } } } }
+});
+new Chart(document.getElementById("facilityChart"), {
+  type: "bar",
+  data: {
+    labels: ' . json_encode($ftLabels) . ',
+    datasets: [{ label: "Count", data: ' . json_encode($ftData) . ', backgroundColor: "#2563EB", borderRadius: 6 }]
+  },
+  options: { indexAxis: "y", responsive: true, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+});
+</script>';
 ?>
 <?php include __DIR__ . '/../../includes/header.php'; ?>
 <div class="app-shell">
@@ -109,8 +175,8 @@ $extraScripts = '<script>const APP_URL = "' . APP_URL . '";</script>';
   <div class="col-xl-8" data-aos="fade-up">
     <div class="card h-100">
       <div class="card-header d-flex align-items-center justify-content-between">
-        <span><i class="fas fa-chart-line me-2 text-primary"></i>Monthly Booking Trends</span>
-        <span class="badge bg-primary"><?= date('Y') ?></span>
+        <span><i class="fas fa-chart-line me-2 text-primary"></i>Weekly Booking Trends</span>
+        <span class="badge bg-primary">Last 7 days</span>
       </div>
       <div class="card-body">
         <canvas id="bookingChart" height="90"></canvas>
@@ -219,75 +285,6 @@ $extraScripts = '<script>const APP_URL = "' . APP_URL . '";</script>';
 <?php include __DIR__ . '/../../includes/footer.php'; ?>
 </div><!-- main-content -->
 </div><!-- app-shell -->
-
-<?php
-// Build monthly chart data
-$months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-$chartLabels = [];
-$chartApproved = array_fill(0,12,0);
-$chartPending  = array_fill(0,12,0);
-$chartRejected = array_fill(0,12,0);
-foreach ($months as $k => $m) $chartLabels[] = $m;
-foreach ($monthlyStats as $row) {
-    $idx = $row['month'] - 1;
-    $chartApproved[$idx] = (int)$row['approved'];
-    $chartPending[$idx]  = (int)$row['pending'];
-    $chartRejected[$idx] = (int)$row['rejected'];
-}
-
-$statusLabels = ['Pending','Approved','Rejected','Cancelled','Completed'];
-$statusData   = [
-    $bookingsByStatus['pending']   ?? 0,
-    $bookingsByStatus['approved']  ?? 0,
-    $bookingsByStatus['rejected']  ?? 0,
-    $bookingsByStatus['cancelled'] ?? 0,
-    $bookingsByStatus['completed'] ?? 0,
-];
-
-$ftLabels = [];
-$ftData   = [];
-foreach ($facilityByType as $type => $cnt) {
-    $ftLabels[] = ucfirst(str_replace('_', ' ', $type));
-    $ftData[]   = $cnt;
-}
-?>
-<script>
-const APP_URL = "<?= APP_URL ?>";
-
-// Booking Trend Chart
-new Chart(document.getElementById('bookingChart'), {
-  type: 'bar',
-  data: {
-    labels: <?= json_encode($chartLabels) ?>,
-    datasets: [
-      { label: 'Approved', data: <?= json_encode($chartApproved) ?>, backgroundColor: '#10B981', borderRadius: 5 },
-      { label: 'Pending',  data: <?= json_encode($chartPending) ?>,  backgroundColor: '#F59E0B', borderRadius: 5 },
-      { label: 'Rejected', data: <?= json_encode($chartRejected) ?>, backgroundColor: '#EF4444', borderRadius: 5 },
-    ]
-  },
-  options: { responsive: true, plugins: { legend: { position: 'top' } }, scales: { x: { stacked: false }, y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
-});
-
-// Status Donut Chart
-new Chart(document.getElementById('statusChart'), {
-  type: 'doughnut',
-  data: {
-    labels: <?= json_encode($statusLabels) ?>,
-    datasets: [{ data: <?= json_encode($statusData) ?>, backgroundColor: ['#F59E0B','#10B981','#EF4444','#94A3B8','#06B6D4'], borderWidth: 0, hoverOffset: 6 }]
-  },
-  options: { responsive: true, cutout: '65%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } } } }
-});
-
-// Facility Type Chart
-new Chart(document.getElementById('facilityChart'), {
-  type: 'bar',
-  data: {
-    labels: <?= json_encode($ftLabels) ?>,
-    datasets: [{ label: 'Count', data: <?= json_encode($ftData) ?>, backgroundColor: '#2563EB', borderRadius: 6 }]
-  },
-  options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } } }
-});
-</script>
 
 <?php
 // Build calendar data — approved/pending bookings for current month

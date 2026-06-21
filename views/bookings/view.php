@@ -111,18 +111,15 @@ $backUrl = APP_URL . '/views/bookings/index.php';
           <?php
           $steps = [
             ['label'=>'Submitted','icon'=>'paper-plane'],
-            ['label'=>'Under Review','icon'=>'search'],
             ['label'=>in_array($booking['status'],['rejected','cancelled'])?ucfirst($booking['status']):'Approved','icon'=>in_array($booking['status'],['rejected','cancelled'])?'times':'check'],
-            ['label'=>'Completed','icon'=>'flag'],
           ];
-          $statusOrder = ['pending'=>0,'approved'=>2,'rejected'=>2,'cancelled'=>2,'completed'=>3];
+          $statusOrder = ['pending'=>0,'approved'=>1,'rejected'=>1,'cancelled'=>1,'completed'=>1];
           $currentStep = $statusOrder[$booking['status']] ?? 0;
           foreach ($steps as $i => $step):
             $cls = '';
             if ($i < $currentStep) $cls = 'done';
             elseif ($i === $currentStep) $cls = 'active';
-            if ($booking['status'] === 'rejected' && $i === 2) $cls = 'rejected';
-            if ($booking['status'] === 'cancelled' && $i === 2) $cls = 'rejected';
+            if (($booking['status'] === 'rejected' || $booking['status'] === 'cancelled') && $i === 1) $cls = 'rejected';
           ?>
           <?php if ($i > 0): ?>
           <div class="u-step-connector <?= $i <= $currentStep ? 'done' : '' ?>"></div>
