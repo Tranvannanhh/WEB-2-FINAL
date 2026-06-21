@@ -18,7 +18,7 @@ A production-ready campus facility booking platform built with PHP 8, MySQL, Boo
 ### Step 1 – Copy Files
 Place the project folder at:
 ```
-C:\xampp\htdocs\final\campus-booking-system\
+C:\xampp\htdocs\finalweb\WEB-2-FINAL\
 ```
 
 ### Step 2 – Start Services
@@ -37,7 +37,7 @@ Open **XAMPP Control Panel** and start:
 ### Step 4 – Configure (if needed)
 Edit `config/config.php`:
 ```php
-define('APP_URL', 'http://localhost/final/campus-booking-system');
+define('APP_URL', 'http://localhost/finalweb/WEB-2-FINAL');
 define('DB_HOST', 'localhost');
 define('DB_NAME', 'campus_booking');
 define('DB_USER', 'root');
@@ -45,7 +45,7 @@ define('DB_PASS', '');  // Change if your MySQL has a password
 ```
 
 ### Step 5 – Access the App
-Open: [http://localhost/final/campus-booking-system](http://localhost/final/campus-booking-system)
+Open: [http://localhost/finalweb/WEB-2-FINAL](http://localhost/finalweb/WEB-2-FINAL)
 
 ---
 

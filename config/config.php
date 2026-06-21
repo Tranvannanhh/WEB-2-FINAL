@@ -1,6 +1,6 @@
 <?php
 define('APP_NAME',      'VNUIS Campus Booking');
-define('APP_URL',       'http://localhost/final/campus-booking-system');
+define('APP_URL',       'http://localhost/finalweb/WEB-2-FINAL');
 define('APP_VERSION',   '1.0.0');
 define('UPLOAD_PATH',   __DIR__ . '/../uploads/');
 define('UPLOAD_URL',    APP_URL . '/uploads/');
