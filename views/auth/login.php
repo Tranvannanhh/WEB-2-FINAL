@@ -88,8 +88,8 @@ $msg = $_GET['msg'] ?? '';
 
     <div class="text-center mb-2">
       <small class="text-muted">Demo credentials:</small><br>
-      <code class="small">admin@vnuis.edu.vn / Admin@123</code><br>
-      <code class="small">student@vnuis.edu.vn / Student@123</code>
+      <code class="small">admin@vnuis.edu.vn / admin123</code><br>
+      <code class="small">student@vnuis.edu.vn / admin123</code>
     </div>
 
     <div class="auth-footer">
