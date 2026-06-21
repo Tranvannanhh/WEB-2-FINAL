@@ -10,10 +10,10 @@ $userModel    = new User();
 $bookingModel = new Booking();
 $userId       = $_SESSION['user_id'];
 $user         = $userModel->findById($userId);
+$errors       = [];
+$activeTab    = $_GET['tab'] ?? 'profile';
 
-$errors    = [];
-$activeTab = $_GET['tab'] ?? 'profile';
-
+// Update profile
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     $fullName    = trim($_POST['full_name'] ?? '');
     $phone       = trim($_POST['phone'] ?? '');
@@ -22,203 +22,162 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     if (empty($fullName)) $errors[] = 'Full name is required.';
     if (!empty($_FILES['avatar']['tmp_name'])) {
         $ext = strtolower(pathinfo($_FILES['avatar']['name'], PATHINFO_EXTENSION));
-        if (!in_array($ext, ['jpg','jpeg','png','gif','webp'])) {
-            $errors[] = 'Invalid image format.';
-        } elseif ($_FILES['avatar']['size'] > 2 * 1024 * 1024) {
-            $errors[] = 'Avatar must be under 2MB.';
-        } else {
-            $uploadDir = __DIR__ . '/../../uploads/avatars/';
-            if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
-            $avatarName = 'avatar_' . $userId . '_' . time() . '.' . $ext;
-            move_uploaded_file($_FILES['avatar']['tmp_name'], $uploadDir . $avatarName);
+        if (!in_array($ext,['jpg','jpeg','png','gif','webp'])) $errors[] = 'Invalid image format.';
+        elseif ($_FILES['avatar']['size'] > 2*1024*1024) $errors[] = 'Avatar must be under 2MB.';
+        else {
+            $uploadDir = __DIR__.'/../../uploads/avatars/';
+            if (!is_dir($uploadDir)) mkdir($uploadDir,0755,true);
+            $avatarName = 'avatar_'.$userId.'_'.time().'.'.$ext;
+            move_uploaded_file($_FILES['avatar']['tmp_name'], $uploadDir.$avatarName);
         }
     }
     if (empty($errors)) {
-        $userModel->updateProfile($userId, ['full_name'=>$fullName,'phone'=>$phone?:null,'student_code'=>$studentCode?:null,'avatar'=>$avatarName]);
-        $_SESSION['full_name'] = $fullName;
-        $_SESSION['avatar']    = $avatarName;
+        $userModel->updateProfile($userId,['full_name'=>$fullName,'phone'=>$phone?:null,'student_code'=>$studentCode?:null,'avatar'=>$avatarName]);
+        $_SESSION['full_name'] = $fullName; $_SESSION['avatar'] = $avatarName;
         $user = $userModel->findById($userId);
-        flashMessage('success', 'Profile updated successfully.');
-        redirect(APP_URL . '/views/profile/index.php?tab=profile');
+        flashMessage('success','Profile updated successfully.');
+        redirect(APP_URL.'/views/profile/index.php?tab=profile');
     }
 }
 
+// Change password
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
     $current = $_POST['current_password'] ?? '';
     $new     = $_POST['new_password'] ?? '';
     $confirm = $_POST['confirm_password'] ?? '';
-    $pdo     = \getDB();
-    $stmt    = $pdo->prepare("SELECT password FROM users WHERE id = ?");
-    $stmt->execute([$userId]);
-    $pwRow   = $stmt->fetch();
-    if (!password_verify($current, $pwRow['password'])) $errors[] = 'Current password is incorrect.';
-    elseif (strlen($new) < 6)  $errors[] = 'New password must be at least 6 characters.';
-    elseif ($new !== $confirm) $errors[] = 'Passwords do not match.';
+    $pdo = \getDB(); $stmt = $pdo->prepare("SELECT password FROM users WHERE id=?"); $stmt->execute([$userId]); $pw = $stmt->fetch();
+    if (!password_verify($current,$pw['password'])) $errors[] = 'Current password is incorrect.';
+    elseif (strlen($new)<6) $errors[] = 'New password must be at least 6 characters.';
+    elseif ($new!==$confirm) $errors[] = 'Passwords do not match.';
     else {
-        $userModel->updatePassword($userId, $new);
-        flashMessage('success', 'Password changed. Please log in again.');
+        $userModel->updatePassword($userId,$new);
+        flashMessage('success','Password changed successfully. Please log in again.');
         session_unset(); session_destroy();
-        redirect(APP_URL . '/views/auth/login.php');
+        redirect(APP_URL.'/views/auth/login.php');
     }
 }
 
-$myBookings    = $bookingModel->getByUser($userId);
-$totalBookings = count($myBookings);
-$completedCnt  = count(array_filter($myBookings, fn($b) => $b['status'] === 'completed'));
-$pendingCnt    = count(array_filter($myBookings, fn($b) => $b['status'] === 'pending'));
-$pageTitle     = 'My Profile';
+$all       = $bookingModel->getByUser($userId);
+$total     = count($all);
+$completed = count(array_filter($all, fn($b)=>$b['status']==='completed'));
+$pending   = count(array_filter($all, fn($b)=>$b['status']==='pending'));
+$pageTitle = 'My Profile';
 
-// Admin: original layout
+// Admin
 if ($_SESSION['role'] === 'admin') {
     include __DIR__ . '/../../includes/header.php';
-    echo '<div class="app-shell">';
-    include __DIR__ . '/../../includes/sidebar.php';
-    echo '<div class="main-content" id="mainContent">';
-    include __DIR__ . '/../../includes/navbar.php';
-    echo '<div class="page-content"><h1><i class="fas fa-user-circle me-2 text-primary"></i>My Profile</h1>';
-    echo displayFlash();
-    echo '<p class="text-muted mt-3">Name: '.sanitize($user['full_name']).' — '.ucfirst($user['role']).'</p>';
-    include __DIR__ . '/../../includes/footer.php';
-    echo '</div></div>';
-    exit;
+    echo '<div class="app-shell">'; include __DIR__ . '/../../includes/sidebar.php';
+    echo '<div class="main-content" id="mainContent">'; include __DIR__ . '/../../includes/navbar.php';
+    echo '<div class="page-content"><h1><i class="fas fa-user-circle me-2 text-primary"></i>My Profile</h1>'.displayFlash();
+    echo '<p class="text-muted mt-3">'.sanitize($user['full_name']).' — '.ucfirst($user['role']).'</p>';
+    include __DIR__ . '/../../includes/footer.php'; echo '</div></div>'; exit;
 }
 ?>
 <?php include __DIR__ . '/../../includes/user_header.php'; ?>
 <?php include __DIR__ . '/../../includes/user_navbar.php'; ?>
 
 <div class="u-page">
-
-  <!-- Banner -->
-  <div style="background:var(--u-primary);padding:60px 0 36px">
+  <div class="u-banner">
     <div class="container">
-      <div class="u-breadcrumb mb-2">
-        <a href="<?= APP_URL ?>/views/dashboard/index.php">Home</a>
-        <span class="u-breadcrumb-sep">›</span>
-        <span>My Profile</span>
-      </div>
-      <h1 style="font-family:var(--u-font-serif);color:#fff;font-size:2rem;margin:0">My Profile</h1>
+      <div class="u-bc"><a href="<?= APP_URL ?>/views/dashboard/index.php">Home</a><span class="u-bc-sep">›</span><span>My Profile</span></div>
+      <h1 class="u-banner-title">My Profile</h1>
     </div>
   </div>
 
-  <div class="u-page-inner">
+  <div class="u-content">
     <div class="container">
-
       <?= displayFlash() ?>
 
       <?php if (!empty($errors)): ?>
-      <div class="u-alert u-alert-danger mb-4">
+      <div class="u-alert u-alert-danger">
         <i class="fas fa-times-circle"></i>
-        <ul style="margin:0;padding-left:16px">
-          <?php foreach ($errors as $e): ?><li><?= sanitize($e) ?></li><?php endforeach; ?>
-        </ul>
+        <ul style="margin:0;padding-left:16px"><?php foreach($errors as $e): ?><li><?= sanitize($e) ?></li><?php endforeach; ?></ul>
       </div>
       <?php endif; ?>
 
       <div class="row g-4">
 
-        <!-- LEFT: Avatar + Stats -->
+        <!-- LEFT: card -->
         <div class="col-lg-3" data-aos="fade-up">
-          <div class="u-card text-center mb-4" style="padding:32px 20px">
-            <div style="position:relative;display:inline-block;margin-bottom:16px">
+          <div class="u-card mb-4" style="padding:28px 20px;text-align:center">
+            <div style="margin-bottom:16px">
               <?php if (!empty($user['avatar'])): ?>
               <img src="<?= APP_URL ?>/uploads/avatars/<?= sanitize($user['avatar']) ?>"
-                   id="avatarPreview"
-                   style="width:90px;height:90px;border-radius:50%;object-fit:cover;border:3px solid var(--u-gold)">
+                   class="u-profile-avt" style="margin:0 auto">
               <?php else: ?>
-              <div id="avatarPreview"
-                   style="width:90px;height:90px;border-radius:50%;background:var(--u-primary);color:var(--u-gold);font-size:2rem;font-weight:700;display:flex;align-items:center;justify-content:center;border:3px solid var(--u-gold);margin:0 auto">
+              <div class="u-profile-avt-init" style="margin:0 auto">
                 <?= strtoupper(substr($user['full_name'],0,1)) ?>
               </div>
               <?php endif; ?>
             </div>
-            <div style="font-weight:700;font-size:1rem;font-family:var(--u-font-serif)"><?= sanitize($user['full_name']) ?></div>
-            <div style="margin:6px 0"><?= getRoleBadge($user['role']) ?></div>
-            <div style="font-size:.8rem;color:var(--u-gray)"><?= sanitize($user['email']) ?></div>
+            <div style="font-weight:800;font-size:1rem;margin-bottom:6px"><?= sanitize($user['full_name']) ?></div>
+            <div style="margin-bottom:8px"><?= getRoleBadge($user['role']) ?></div>
+            <div style="font-size:.8rem;color:var(--muted)"><?= sanitize($user['email']) ?></div>
             <?php if (!empty($user['student_code'])): ?>
-            <div style="font-size:.78rem;color:var(--u-gray);margin-top:4px"><i class="fas fa-id-card me-1"></i><?= sanitize($user['student_code']) ?></div>
+            <div style="font-size:.78rem;color:var(--muted);margin-top:4px"><i class="fas fa-id-card me-1"></i><?= sanitize($user['student_code']) ?></div>
             <?php endif; ?>
-            <div style="font-size:.76rem;color:#94A3B8;margin-top:4px"><i class="fas fa-calendar me-1"></i>Joined <?= formatDate($user['created_at'],'M Y') ?></div>
+            <div style="font-size:.76rem;color:#94a3b8;margin-top:4px"><i class="fas fa-calendar me-1"></i>Joined <?= formatDate($user['created_at'],'M Y') ?></div>
           </div>
 
           <div class="u-card">
-            <div class="u-card-header"><span><i class="fas fa-chart-bar"></i> My Stats</span></div>
-            <?php $statRows = [
-              ['label'=>'Total Bookings','val'=>$totalBookings,'color'=>'var(--u-primary)'],
-              ['label'=>'Completed','val'=>$completedCnt,'color'=>'#10B981'],
-              ['label'=>'Pending','val'=>$pendingCnt,'color'=>'#F59E0B'],
-            ]; foreach ($statRows as $sr): ?>
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 20px;border-bottom:1px solid var(--u-border)">
-              <span style="font-size:.84rem;color:var(--u-gray)"><?= $sr['label'] ?></span>
-              <span style="font-weight:700;color:<?= $sr['color'] ?>"><?= $sr['val'] ?></span>
+            <div class="u-card-hd"><span><i class="fas fa-chart-bar"></i> My Stats</span></div>
+            <?php $stats=[['Total Bookings',$total,'var(--p)'],['Completed',$completed,'var(--green)'],['Pending',$pending,'var(--amber)']];
+            foreach($stats as [$lbl,$val,$col]): ?>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 18px;border-bottom:1px solid var(--border)">
+              <span style="font-size:.84rem;color:var(--muted)"><?= $lbl ?></span>
+              <span style="font-weight:800;color:<?= $col ?>"><?= $val ?></span>
             </div>
             <?php endforeach; ?>
           </div>
         </div>
 
-        <!-- RIGHT: Tabs -->
+        <!-- RIGHT: tabs -->
         <div class="col-lg-9" data-aos="fade-up" data-aos-delay="60">
           <div class="u-card">
-            <!-- Tab nav -->
-            <div style="border-bottom:1px solid var(--u-border);padding:0 22px">
-              <div style="display:flex;gap:0">
-                <a href="?tab=profile"
-                   style="display:inline-block;padding:16px 20px;font-size:.88rem;font-weight:600;border-bottom:3px solid <?= $activeTab==='profile'?'var(--u-gold)':'transparent' ?>;color:<?= $activeTab==='profile'?'var(--u-primary)':'var(--u-gray)' ?>;margin-bottom:-1px">
-                  <i class="fas fa-user me-1"></i> Edit Profile
-                </a>
-                <a href="?tab=password"
-                   style="display:inline-block;padding:16px 20px;font-size:.88rem;font-weight:600;border-bottom:3px solid <?= $activeTab==='password'?'var(--u-gold)':'transparent' ?>;color:<?= $activeTab==='password'?'var(--u-primary)':'var(--u-gray)' ?>;margin-bottom:-1px">
-                  <i class="fas fa-lock me-1"></i> Change Password
-                </a>
-              </div>
+            <div class="u-tabs">
+              <a href="?tab=profile" class="u-tab <?= $activeTab==='profile'?'is-active':'' ?>">
+                <i class="fas fa-user me-1"></i> Edit Profile
+              </a>
+              <a href="?tab=password" class="u-tab <?= $activeTab==='password'?'is-active':'' ?>">
+                <i class="fas fa-lock me-1"></i> Change Password
+              </a>
             </div>
-
             <div class="u-card-body">
+
               <?php if ($activeTab === 'profile'): ?>
               <form method="POST" enctype="multipart/form-data" novalidate>
                 <div class="row g-3">
-                  <!-- Avatar -->
                   <div class="col-12 text-center mb-2">
-                    <div style="position:relative;display:inline-block">
+                    <div class="u-profile-avt-wrap" style="display:inline-block">
                       <?php if (!empty($user['avatar'])): ?>
-                      <img src="<?= APP_URL ?>/uploads/avatars/<?= sanitize($user['avatar']) ?>"
-                           id="avatarPreview2"
-                           style="width:90px;height:90px;border-radius:50%;object-fit:cover;border:3px solid var(--u-gold)">
+                      <img src="<?= APP_URL ?>/uploads/avatars/<?= sanitize($user['avatar']) ?>" class="u-profile-avt" id="avatarPreview">
                       <?php else: ?>
-                      <div id="avatarPreview2"
-                           style="width:90px;height:90px;border-radius:50%;background:var(--u-primary);color:var(--u-gold);font-size:2rem;font-weight:700;display:flex;align-items:center;justify-content:center;border:3px solid var(--u-gold);margin:0 auto">
-                        <?= strtoupper(substr($user['full_name'],0,1)) ?>
-                      </div>
+                      <div class="u-profile-avt-init" id="avatarPreview"><?= strtoupper(substr($user['full_name'],0,1)) ?></div>
                       <?php endif; ?>
-                      <label for="avatarInput2"
-                             style="position:absolute;bottom:0;right:0;width:28px;height:28px;background:var(--u-gold);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;border:2px solid #fff">
-                        <i class="fas fa-camera" style="font-size:.65rem;color:var(--u-primary)"></i>
+                      <label for="avatarInput" class="u-profile-avt-btn" title="Change photo">
+                        <i class="fas fa-camera"></i>
                       </label>
                     </div>
-                    <input type="file" id="avatarInput2" name="avatar" accept="image/*" class="d-none"
-                           onchange="previewAvatar(this,'avatarPreview2')">
-                    <div style="font-size:.76rem;color:var(--u-gray);margin-top:6px">Click camera to change photo</div>
-                  </div>
-
-                  <div class="col-md-6">
-                    <label class="u-form-label">Full Name <span style="color:#EF4444">*</span></label>
-                    <input type="text" class="u-form-control" name="full_name"
-                           value="<?= sanitize($user['full_name']) ?>" required>
+                    <input type="file" id="avatarInput" name="avatar" accept="image/*" class="d-none"
+                           onchange="previewAvatar(this,'avatarPreview')">
+                    <div style="font-size:.75rem;color:var(--muted);margin-top:6px">Click camera icon to change photo</div>
                   </div>
                   <div class="col-md-6">
-                    <label class="u-form-label">Email Address</label>
-                    <input type="email" class="u-form-control" value="<?= sanitize($user['email']) ?>" disabled
-                           style="background:var(--u-off-white);cursor:not-allowed">
-                    <div style="font-size:.75rem;color:var(--u-gray);margin-top:4px">Cannot be changed. Contact admin.</div>
+                    <label class="u-label">Full Name <span class="req">*</span></label>
+                    <input type="text" class="u-input" name="full_name" value="<?= sanitize($user['full_name']) ?>" required>
                   </div>
                   <div class="col-md-6">
-                    <label class="u-form-label">Phone Number</label>
-                    <input type="tel" class="u-form-control" name="phone"
-                           value="<?= sanitize($user['phone'] ?? '') ?>" placeholder="e.g. 0901234567">
+                    <label class="u-label">Email Address</label>
+                    <input type="email" class="u-input" value="<?= sanitize($user['email']) ?>" disabled style="background:var(--bg);cursor:not-allowed">
+                    <div class="u-form-hint">Cannot be changed. Contact admin.</div>
                   </div>
                   <div class="col-md-6">
-                    <label class="u-form-label">Student / Staff Code</label>
-                    <input type="text" class="u-form-control" name="student_code"
-                           value="<?= sanitize($user['student_code'] ?? '') ?>" placeholder="e.g. SV2021001">
+                    <label class="u-label">Phone Number</label>
+                    <input type="tel" class="u-input" name="phone" value="<?= sanitize($user['phone'] ?? '') ?>" placeholder="e.g. 0901234567">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="u-label">Student / Staff Code</label>
+                    <input type="text" class="u-input" name="student_code" value="<?= sanitize($user['student_code'] ?? '') ?>" placeholder="e.g. SV2021001">
                   </div>
                   <div class="col-12 mt-2">
                     <button type="submit" name="update_profile" value="1" class="u-btn u-btn-gold u-btn-lg">
@@ -232,17 +191,17 @@ if ($_SESSION['role'] === 'admin') {
               <form method="POST" novalidate>
                 <div class="row g-3" style="max-width:440px">
                   <div class="col-12">
-                    <label class="u-form-label">Current Password <span style="color:#EF4444">*</span></label>
-                    <input type="password" class="u-form-control" name="current_password" required autocomplete="current-password">
+                    <label class="u-label">Current Password <span class="req">*</span></label>
+                    <input type="password" class="u-input" name="current_password" required autocomplete="current-password">
                   </div>
                   <div class="col-12">
-                    <label class="u-form-label">New Password <span style="color:#EF4444">*</span></label>
-                    <input type="password" class="u-form-control" name="new_password" required minlength="6" autocomplete="new-password">
-                    <div style="font-size:.75rem;color:var(--u-gray);margin-top:4px">Minimum 6 characters.</div>
+                    <label class="u-label">New Password <span class="req">*</span></label>
+                    <input type="password" class="u-input" name="new_password" required minlength="6" autocomplete="new-password">
+                    <div class="u-form-hint">Minimum 6 characters.</div>
                   </div>
                   <div class="col-12">
-                    <label class="u-form-label">Confirm New Password <span style="color:#EF4444">*</span></label>
-                    <input type="password" class="u-form-control" name="confirm_password" required autocomplete="new-password">
+                    <label class="u-label">Confirm New Password <span class="req">*</span></label>
+                    <input type="password" class="u-input" name="confirm_password" required autocomplete="new-password">
                   </div>
                   <div class="col-12 mt-2">
                     <button type="submit" name="change_password" value="1" class="u-btn u-btn-gold u-btn-lg">
@@ -252,6 +211,7 @@ if ($_SESSION['role'] === 'admin') {
                 </div>
               </form>
               <?php endif; ?>
+
             </div>
           </div>
         </div>
@@ -263,7 +223,6 @@ if ($_SESSION['role'] === 'admin') {
 
 <?php include __DIR__ . '/../../includes/user_footer.php'; ?>
 <script>
-const APP_URL = "<?= APP_URL ?>";
 function previewAvatar(input, previewId) {
   const file = input.files[0];
   if (!file) return;
@@ -274,10 +233,8 @@ function previewAvatar(input, previewId) {
       el.src = e.target.result;
     } else if (el) {
       const img = document.createElement('img');
-      img.src = e.target.result;
-      img.id  = previewId;
-      img.style.cssText = 'width:90px;height:90px;border-radius:50%;object-fit:cover;border:3px solid var(--u-gold)';
-      img.alt = 'Avatar';
+      img.src = e.target.result; img.id = previewId;
+      img.className = 'u-profile-avt'; img.style.margin = '0 auto';
       el.replaceWith(img);
     }
   };

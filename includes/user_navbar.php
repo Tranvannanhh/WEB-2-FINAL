@@ -1,126 +1,127 @@
 <?php
-$unreadCount = isLoggedIn() ? getUnreadNotificationCount($_SESSION['user_id']) : 0;
-$currentPage = basename($_SERVER['PHP_SELF']);
-$currentDir  = basename(dirname($_SERVER['PHP_SELF']));
+$unread  = isLoggedIn() ? getUnreadNotificationCount($_SESSION['user_id']) : 0;
+$curPage = basename($_SERVER['PHP_SELF']);
+$curDir  = basename(dirname($_SERVER['PHP_SELF']));
+$role    = $_SESSION['role'] ?? 'student';
 
-$navLinks = [
-    ['href' => APP_URL . '/views/dashboard/index.php',  'label' => 'Home',       'dir' => 'dashboard',  'page' => 'index.php'],
-    ['href' => APP_URL . '/views/facilities/index.php', 'label' => 'Facilities', 'dir' => 'facilities', 'page' => 'index.php'],
-    ['href' => APP_URL . '/views/bookings/create.php',  'label' => 'Book Now',   'dir' => 'bookings',   'page' => 'create.php'],
-    ['href' => APP_URL . '/views/bookings/index.php',   'label' => 'My Bookings','dir' => 'bookings',   'page' => 'index.php'],
+$links = [
+  ['href' => APP_URL.'/views/dashboard/index.php',  'label' => 'Home',        'icon' => 'home',         'dir' => 'dashboard', 'page' => 'index.php'],
+  ['href' => APP_URL.'/views/facilities/index.php', 'label' => 'Facilities',  'icon' => 'building',     'dir' => 'facilities','page' => 'index.php'],
+  ['href' => APP_URL.'/views/bookings/create.php',  'label' => 'Book Now',    'icon' => 'calendar-plus','dir' => 'bookings',  'page' => 'create.php'],
+  ['href' => APP_URL.'/views/bookings/index.php',   'label' => 'My Bookings', 'icon' => 'list-alt',     'dir' => 'bookings',  'page' => 'index.php'],
 ];
 ?>
-<!-- ====== USER NAVBAR ====== -->
-<header class="u-navbar" id="uNavbar">
-    <div class="container-fluid px-4">
-        <nav class="d-flex align-items-center justify-content-between" style="height:70px">
+<nav class="u-nav" id="uNav">
+  <div class="u-nav-inner">
 
-            <!-- Brand -->
-            <a href="<?= APP_URL ?>/views/dashboard/index.php" class="u-brand">
-                <div class="u-brand-icon">
-                    <svg width="26" height="26" viewBox="0 0 28 28" fill="none">
-                        <rect width="28" height="28" rx="6" fill="white" fill-opacity="0.15"/>
-                        <path d="M7 10h14M7 14h14M7 18h10" stroke="white" stroke-width="2" stroke-linecap="round"/>
-                        <rect x="9" y="6" width="3" height="4" rx="1" fill="white"/>
-                        <rect x="16" y="6" width="3" height="4" rx="1" fill="white"/>
-                    </svg>
-                </div>
-                <span class="u-brand-text">VNUIS <span>Booking</span></span>
+    <!-- Brand -->
+    <a href="<?= APP_URL ?>/views/dashboard/index.php" class="u-logo">
+      <div class="u-logo-box"><i class="fas fa-calendar-check"></i></div>
+      VNUIS&nbsp;<span class="u-logo-sub">Booking</span>
+    </a>
+
+    <!-- Desktop nav links -->
+    <ul class="u-nav-links">
+      <?php foreach ($links as $l):
+        $active = ($curDir === $l['dir'] && $curPage === $l['page']);
+      ?>
+      <li>
+        <a href="<?= $l['href'] ?>" class="u-nav-link <?= $active ? 'is-active' : '' ?>">
+          <i class="fas fa-<?= $l['icon'] ?>"></i> <?= $l['label'] ?>
+        </a>
+      </li>
+      <?php endforeach; ?>
+    </ul>
+
+    <!-- Right actions -->
+    <div class="u-nav-actions">
+
+      <!-- Notification bell -->
+      <div class="dropdown">
+        <button class="u-nav-icon" data-bs-toggle="dropdown" id="notifBtn" title="Notifications">
+          <i class="fas fa-bell"></i>
+          <?php if ($unread > 0): ?>
+          <span class="badge-dot" id="notifBadge"><?= $unread > 9 ? '9+' : $unread ?></span>
+          <?php endif; ?>
+        </button>
+        <div class="dropdown-menu dropdown-menu-end u-notif-dd" style="min-width:340px;max-width:92vw">
+          <div class="u-notif-dd-head">
+            <span>Notifications <?php if ($unread > 0): ?><span class="badge bg-danger rounded-pill"><?= $unread ?></span><?php endif; ?></span>
+            <a href="#" id="markAllRead" style="font-size:.8rem;color:var(--gold)">Mark all read</a>
+          </div>
+          <div id="notifList" style="max-height:320px;overflow-y:auto">
+            <div class="text-center py-4 text-muted small"><i class="fas fa-spinner fa-spin"></i></div>
+          </div>
+          <div class="text-center border-top py-2">
+            <a href="<?= APP_URL ?>/views/notifications/index.php" style="font-size:.81rem;color:var(--gold)">
+              View all notifications →
             </a>
+          </div>
+        </div>
+      </div>
 
-            <!-- Desktop Nav Links -->
-            <ul class="u-nav-links d-none d-lg-flex">
-                <?php foreach ($navLinks as $link):
-                    $isActive = ($currentDir === $link['dir'] && $currentPage === $link['page']);
-                ?>
-                <li>
-                    <a href="<?= $link['href'] ?>" class="u-nav-link <?= $isActive ? 'active' : '' ?>">
-                        <?= $link['label'] ?>
-                    </a>
-                </li>
-                <?php endforeach; ?>
-            </ul>
-
-            <!-- Right Actions -->
-            <div class="d-flex align-items-center gap-3">
-
-                <!-- Notifications -->
-                <div class="dropdown">
-                    <button class="u-icon-btn position-relative" data-bs-toggle="dropdown" id="notifDropdownBtn">
-                        <i class="fas fa-bell"></i>
-                        <?php if ($unreadCount > 0): ?>
-                        <span class="u-badge" id="notifBadge"><?= $unreadCount > 9 ? '9+' : $unreadCount ?></span>
-                        <?php endif; ?>
-                    </button>
-                    <div class="dropdown-menu dropdown-menu-end u-notif-dropdown shadow-lg" style="min-width:340px">
-                        <div class="d-flex align-items-center justify-content-between px-3 py-2 border-bottom">
-                            <strong class="small">Notifications</strong>
-                            <a href="#" class="text-muted small" id="markAllRead">Mark all read</a>
-                        </div>
-                        <div id="notifList" style="max-height:320px;overflow-y:auto">
-                            <div class="text-center py-3 text-muted small">
-                                <i class="fas fa-spinner fa-spin"></i> Loading…
-                            </div>
-                        </div>
-                        <div class="text-center border-top py-2">
-                            <a href="<?= APP_URL ?>/views/notifications/index.php" class="small" style="color:var(--u-primary)">View all</a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- User Menu -->
-                <div class="dropdown">
-                    <button class="u-user-btn d-flex align-items-center gap-2" data-bs-toggle="dropdown">
-                        <div class="u-avatar">
-                            <?php if (!empty($_SESSION['avatar'])): ?>
-                                <img src="<?= APP_URL ?>/uploads/avatars/<?= sanitize($_SESSION['avatar']) ?>" alt="Avatar">
-                            <?php else: ?>
-                                <?= strtoupper(substr($_SESSION['full_name'] ?? 'U', 0, 1)) ?>
-                            <?php endif; ?>
-                        </div>
-                        <span class="d-none d-md-inline"><?= sanitize(explode(' ', $_SESSION['full_name'] ?? 'User')[0]) ?></span>
-                        <i class="fas fa-chevron-down small opacity-75"></i>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end shadow" style="border-radius:12px;border:1px solid #eee;min-width:200px">
-                        <li>
-                            <div class="px-3 py-2 border-bottom">
-                                <div class="fw-semibold small"><?= sanitize($_SESSION['full_name'] ?? '') ?></div>
-                                <div class="text-muted" style="font-size:.75rem"><?= ucfirst($_SESSION['role'] ?? '') ?></div>
-                            </div>
-                        </li>
-                        <li><a class="dropdown-item py-2" href="<?= APP_URL ?>/views/profile/index.php">
-                            <i class="fas fa-user-circle me-2" style="color:var(--u-primary)"></i>My Profile</a></li>
-                        <li><a class="dropdown-item py-2" href="<?= APP_URL ?>/views/notifications/index.php">
-                            <i class="fas fa-bell me-2" style="color:var(--u-primary)"></i>Notifications
-                            <?php if ($unreadCount > 0): ?><span class="badge bg-danger rounded-pill ms-1"><?= $unreadCount ?></span><?php endif; ?>
-                        </a></li>
-                        <?php if ($_SESSION['role'] === 'student'): ?>
-                        <li><a class="dropdown-item py-2" href="<?= APP_URL ?>/views/reports/facility.php">
-                            <i class="fas fa-flag me-2 text-warning"></i>Report Issue</a></li>
-                        <?php endif; ?>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item py-2 text-danger" href="<?= APP_URL ?>/controllers/AuthController.php?action=logout"
-                               onclick="return confirm('Are you sure you want to logout?')">
-                            <i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
-                    </ul>
-                </div>
-
-                <!-- Mobile Hamburger -->
-                <button class="u-icon-btn d-lg-none" id="mobileMenuBtn">
-                    <i class="fas fa-bars"></i>
-                </button>
+      <!-- User pill -->
+      <div class="dropdown">
+        <button class="u-user-pill" data-bs-toggle="dropdown">
+          <div class="u-avt">
+            <?php if (!empty($_SESSION['avatar'])): ?>
+              <img src="<?= APP_URL ?>/uploads/avatars/<?= sanitize($_SESSION['avatar']) ?>" alt="">
+            <?php else: ?>
+              <?= strtoupper(substr($_SESSION['full_name'] ?? 'U', 0, 1)) ?>
+            <?php endif; ?>
+          </div>
+          <span class="d-none d-sm-inline" style="max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+            <?= sanitize(explode(' ', $_SESSION['full_name'] ?? 'User')[0]) ?>
+          </span>
+          <i class="fas fa-chevron-down" style="font-size:.65rem;opacity:.7"></i>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end shadow" style="border-radius:14px;border:1px solid var(--border);min-width:210px;padding:8px">
+          <li>
+            <div class="px-3 py-2 border-bottom mb-1">
+              <div style="font-weight:700;font-size:.9rem"><?= sanitize($_SESSION['full_name'] ?? '') ?></div>
+              <div style="font-size:.75rem;color:var(--muted)"><?= ucfirst($role) ?> · <?= sanitize($_SESSION['email'] ?? '') ?></div>
             </div>
-        </nav>
-    </div>
-
-    <!-- Mobile Menu -->
-    <div class="u-mobile-menu d-lg-none" id="mobileMenu">
-        <ul>
-            <?php foreach ($navLinks as $link):
-                $isActive = ($currentDir === $link['dir'] && $currentPage === $link['page']);
-            ?>
-            <li><a href="<?= $link['href'] ?>" class="<?= $isActive ? 'active' : '' ?>"><?= $link['label'] ?></a></li>
-            <?php endforeach; ?>
+          </li>
+          <li><a class="dropdown-item rounded-2 py-2" href="<?= APP_URL ?>/views/profile/index.php">
+            <i class="fas fa-user-circle me-2 text-primary"></i>My Profile</a></li>
+          <li><a class="dropdown-item rounded-2 py-2" href="<?= APP_URL ?>/views/notifications/index.php">
+            <i class="fas fa-bell me-2 text-warning"></i>Notifications
+            <?php if ($unread > 0): ?><span class="badge bg-danger rounded-pill ms-1 float-end"><?= $unread ?></span><?php endif; ?>
+          </a></li>
+          <?php if ($role === 'student'): ?>
+          <li><a class="dropdown-item rounded-2 py-2" href="<?= APP_URL ?>/views/reports/facility.php">
+            <i class="fas fa-flag me-2 text-danger"></i>Report Issue</a></li>
+          <?php endif; ?>
+          <li><hr class="dropdown-divider my-1"></li>
+          <li><a class="dropdown-item rounded-2 py-2 text-danger" href="<?= APP_URL ?>/controllers/AuthController.php?action=logout"
+                 onclick="return confirm('Logout?')">
+            <i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
         </ul>
+      </div>
+
+      <!-- Mobile hamburger -->
+      <button class="u-nav-icon d-lg-none" id="mobileMenuBtn" aria-label="Menu">
+        <i class="fas fa-bars"></i>
+      </button>
     </div>
-</header>
+  </div>
+
+  <!-- Mobile drawer -->
+  <div class="u-mobile-drawer" id="mobileDrawer">
+    <?php foreach ($links as $l):
+      $active = ($curDir === $l['dir'] && $curPage === $l['page']);
+    ?>
+    <a href="<?= $l['href'] ?>" class="<?= $active ? 'is-active' : '' ?>">
+      <i class="fas fa-<?= $l['icon'] ?>"></i> <?= $l['label'] ?>
+    </a>
+    <?php endforeach; ?>
+    <a href="<?= APP_URL ?>/views/profile/index.php">
+      <i class="fas fa-user-circle"></i> My Profile
+    </a>
+    <?php if ($role === 'student'): ?>
+    <a href="<?= APP_URL ?>/views/reports/facility.php">
+      <i class="fas fa-flag"></i> Report Issue
+    </a>
+    <?php endif; ?>
+  </div>
+</nav>
