@@ -63,10 +63,12 @@ $pageTitle = 'Manage Users';
 <div class="row g-2 mb-3">
   <?php foreach ([['All','',array_sum($counts),'blue','users'],['Students','student',$counts['student']??0,'teal','user-graduate'],['Lecturers','lecturer',$counts['lecturer']??0,'orange','chalkboard-teacher'],['Admins','admin',$counts['admin']??0,'red','user-shield']] as [$label,$role,$cnt,$color,$icon]): ?>
   <div class="col-sm-6 col-xl-3">
-    <div class="stat-card <?= $color ?>">
+    <a href="?role=<?= $role ?>" style="text-decoration:none">
+    <div class="stat-card <?= $color ?> <?= $roleFilter===$role?'border border-2 border-primary':'' ?>" style="cursor:pointer;transition:transform .15s,box-shadow .15s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
       <div class="stat-icon <?= $color ?>"><i class="fas fa-<?= $icon ?>"></i></div>
       <div><div class="stat-value"><?= $cnt ?></div><div class="stat-label"><?= $label ?></div></div>
     </div>
+    </a>
   </div>
   <?php endforeach; ?>
 </div>

@@ -21,7 +21,7 @@ $ratingInfo= $reviewModel->getFacilityAverageRating($id);
 
 $pageTitle = sanitize($facility['facility_name']);
 
-// Admin uses existing layout
+// Admin uses admin layout with full detail
 if ($_SESSION['role'] === 'admin') {
     include __DIR__ . '/../../includes/header.php';
     echo '<div class="app-shell">';
@@ -33,15 +33,133 @@ if ($_SESSION['role'] === 'admin') {
       <div class="page-header">
         <div class="page-header-left">
           <h1><i class="fas fa-<?= getFacilityIcon($facility['facility_type']) ?> me-2 text-primary"></i><?= sanitize($facility['facility_name']) ?></h1>
+          <nav aria-label="breadcrumb"><ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="<?= APP_URL ?>/views/dashboard/admin.php">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="<?= APP_URL ?>/views/facilities/manage.php">Facilities</a></li>
+            <li class="breadcrumb-item active"><?= sanitize($facility['facility_name']) ?></li>
+          </ol></nav>
         </div>
-        <?php if ($facility['status'] === 'available'): ?>
-        <a href="<?= APP_URL ?>/views/bookings/create.php?facility_id=<?= $id ?>" class="btn btn-primary">
-          <i class="fas fa-calendar-plus me-2"></i>Book
-        </a>
-        <?php endif; ?>
+        <div class="d-flex gap-2">
+          <a href="<?= APP_URL ?>/views/facilities/form.php?id=<?= $id ?>" class="btn btn-outline-primary btn-sm">
+            <i class="fas fa-edit me-1"></i>Edit
+          </a>
+          <?php if ($facility['status'] === 'available'): ?>
+          <a href="<?= APP_URL ?>/views/bookings/create.php?facility_id=<?= $id ?>" class="btn btn-primary btn-sm">
+            <i class="fas fa-calendar-plus me-1"></i>Book
+          </a>
+          <?php endif; ?>
+          <a href="<?= APP_URL ?>/views/facilities/manage.php" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-arrow-left me-1"></i>Back
+          </a>
+        </div>
       </div>
       <?= displayFlash() ?>
-      <p class="text-muted">Admin view — facility detail page.</p>
+
+      <div class="row g-4">
+        <!-- LEFT: Info + Reviews -->
+        <div class="col-lg-8">
+
+          <!-- Hero Image -->
+          <?php if (!empty($facility['image_path'])): ?>
+          <div class="card mb-4" style="overflow:hidden">
+            <img src="<?= facilityImgSrc($facility['image_path']) ?>" alt="<?= sanitize($facility['facility_name']) ?>"
+                 style="width:100%;height:280px;object-fit:cover">
+          </div>
+          <?php endif; ?>
+
+          <!-- Details Card -->
+          <div class="card mb-4">
+            <div class="card-header"><i class="fas fa-info-circle me-2 text-primary"></i>Facility Details</div>
+            <div class="card-body">
+              <div class="row g-3">
+                <div class="col-sm-6">
+                  <div class="text-muted small mb-1">Type</div>
+                  <div class="fw-semibold"><i class="fas fa-<?= getFacilityIcon($facility['facility_type']) ?> me-1 text-primary"></i><?= ucfirst(str_replace('_',' ',$facility['facility_type'])) ?></div>
+                </div>
+                <div class="col-sm-6">
+                  <div class="text-muted small mb-1">Status</div>
+                  <?= getStatusBadge($facility['status']) ?>
+                </div>
+                <div class="col-sm-6">
+                  <div class="text-muted small mb-1">Capacity</div>
+                  <div class="fw-semibold"><i class="fas fa-users me-1 text-primary"></i><?= $facility['capacity'] ?> seats</div>
+                </div>
+                <div class="col-sm-6">
+                  <div class="text-muted small mb-1">Location</div>
+                  <div class="fw-semibold"><i class="fas fa-map-marker-alt me-1 text-primary"></i><?= sanitize($facility['location']) ?></div>
+                </div>
+                <?php if (!empty($facility['description'])): ?>
+                <div class="col-12">
+                  <div class="text-muted small mb-1">Description</div>
+                  <div class="small" style="line-height:1.7"><?= nl2br(sanitize($facility['description'])) ?></div>
+                </div>
+                <?php endif; ?>
+                <?php if ($ratingInfo['total'] > 0): ?>
+                <div class="col-sm-6">
+                  <div class="text-muted small mb-1">Rating</div>
+                  <div class="fw-semibold">
+                    <span class="text-warning"><?= str_repeat('★', round($ratingInfo['avg_rating'])) ?></span>
+                    <?= number_format($ratingInfo['avg_rating'],1) ?>/5
+                    <span class="text-muted small">(<?= $ratingInfo['total'] ?> reviews)</span>
+                  </div>
+                </div>
+                <?php endif; ?>
+              </div>
+            </div>
+          </div>
+
+          <!-- Reviews -->
+          <div class="card">
+            <div class="card-header"><i class="fas fa-star me-2 text-warning"></i>Reviews (<?= count($reviews) ?>)</div>
+            <div class="card-body p-0">
+              <?php if (empty($reviews)): ?>
+              <p class="text-center text-muted py-4 small">No reviews yet.</p>
+              <?php else: ?>
+              <table class="table table-hover mb-0">
+                <thead><tr><th>User</th><th>Rating</th><th>Comment</th><th>Date</th></tr></thead>
+                <tbody>
+                <?php foreach ($reviews as $r): ?>
+                <tr>
+                  <td class="small fw-semibold"><?= sanitize($r['full_name']) ?></td>
+                  <td><span class="text-warning"><?= str_repeat('★',$r['rating']) ?></span> <span class="small text-muted"><?= $r['rating'] ?>/5</span></td>
+                  <td class="small text-muted"><?= sanitize(truncate($r['comment']??'—',60)) ?></td>
+                  <td class="small text-muted"><?= timeAgo($r['created_at']) ?></td>
+                </tr>
+                <?php endforeach; ?>
+                </tbody>
+              </table>
+              <?php endif; ?>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: Equipment -->
+        <div class="col-lg-4">
+          <div class="card mb-4">
+            <div class="card-header d-flex align-items-center justify-content-between">
+              <span><i class="fas fa-tools me-2 text-primary"></i>Equipment (<?= count($equipment) ?>)</span>
+              <a href="<?= APP_URL ?>/views/facilities/equipment.php?facility_id=<?= $id ?>" class="btn btn-xs btn-outline-primary">Manage</a>
+            </div>
+            <div class="card-body p-0">
+              <?php if (empty($equipment)): ?>
+              <p class="text-center text-muted py-3 small">No equipment listed.</p>
+              <?php else: ?>
+              <ul class="list-group list-group-flush">
+                <?php foreach ($equipment as $eq): ?>
+                <li class="list-group-item d-flex align-items-center justify-content-between py-2">
+                  <div>
+                    <div class="small fw-semibold"><?= sanitize($eq['equipment_name']) ?></div>
+                    <div class="text-muted" style="font-size:.72rem">Qty: <?= $eq['quantity'] ?></div>
+                  </div>
+                  <?= getStatusBadge($eq['status']) ?>
+                </li>
+                <?php endforeach; ?>
+              </ul>
+              <?php endif; ?>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
     <?php
     include __DIR__ . '/../../includes/footer.php';

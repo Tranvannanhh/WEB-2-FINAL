@@ -33,6 +33,30 @@ $pageTitle  = 'Manage Bookings';
 
 <?= displayFlash() ?>
 
+<!-- Stat Cards -->
+<div class="row g-2 mb-3">
+  <?php
+  $allCount = array_sum($counts);
+  $cardDefs = [
+    ['All',       '',           $allCount,                   'blue',   'calendar-check'],
+    ['Pending',   'pending',    $counts['pending']??0,       'orange', 'clock'],
+    ['Approved',  'approved',   $counts['approved']??0,      'teal',   'check-circle'],
+    ['Completed', 'completed',  $counts['completed']??0,     'orange', 'flag'],
+    ['Rejected',  'rejected',   $counts['rejected']??0,      'red',    'times-circle'],
+    ['Cancelled', 'cancelled',  $counts['cancelled']??0,     'gray',   'ban'],
+  ];
+  foreach ($cardDefs as [$label,$s,$cnt,$color,$icon]): ?>
+  <div class="col-sm-6 col-xl">
+    <a href="?status=<?= $s ?>" style="text-decoration:none">
+    <div class="stat-card <?= $color ?> <?= $status===$s?'border border-2 border-primary':'' ?>" style="cursor:pointer;transition:transform .15s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
+      <div class="stat-icon <?= $color ?>"><i class="fas fa-<?= $icon ?>"></i></div>
+      <div><div class="stat-value"><?= $cnt ?></div><div class="stat-label"><?= $label ?></div></div>
+    </div>
+    </a>
+  </div>
+  <?php endforeach; ?>
+</div>
+
 <!-- Status Filter Tabs -->
 <div class="d-flex gap-2 mb-3 flex-wrap">
   <?php
@@ -40,8 +64,8 @@ $pageTitle  = 'Manage Bookings';
   $statuses = ['' => ['label'=>'All','count'=>$allCount],
                'pending'   => ['label'=>'Pending','count'=>$counts['pending']??0],
                'approved'  => ['label'=>'Approved','count'=>$counts['approved']??0],
-               'rejected'  => ['label'=>'Rejected','count'=>$counts['rejected']??0],
                'completed' => ['label'=>'Completed','count'=>$counts['completed']??0],
+               'rejected'  => ['label'=>'Rejected','count'=>$counts['rejected']??0],
                'cancelled' => ['label'=>'Cancelled','count'=>$counts['cancelled']??0]];
   foreach ($statuses as $s => $info): ?>
   <a href="?status=<?= $s ?>" class="btn btn-sm <?= $status===$s?'btn-primary':'btn-outline-secondary' ?>">

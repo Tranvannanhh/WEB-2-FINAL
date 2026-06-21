@@ -6,7 +6,14 @@ require_once __DIR__ . '/../../models/Facility.php';
 
 requireAdmin();
 $facilityModel = new Facility();
-$facilities = $facilityModel->getAll();
+$statusFilter  = $_GET['status'] ?? '';
+$typeFilter    = $_GET['type']   ?? '';
+$facilities    = $facilityModel->getAll($typeFilter ?: null, $statusFilter ?: null);
+$allFacilities = $facilityModel->getAll();
+$countByStatus = ['available'=>0,'maintenance'=>0,'inactive'=>0];
+foreach ($allFacilities as $f) {
+    if (isset($countByStatus[$f['status']])) $countByStatus[$f['status']]++;
+}
 $pageTitle = 'Manage Facilities';
 ?>
 <?php include __DIR__ . '/../../includes/header.php'; ?>
@@ -31,7 +38,24 @@ $pageTitle = 'Manage Facilities';
 
 <?= displayFlash() ?>
 
-<div class="card">
+<!-- Stat Cards -->
+<div class="row g-2 mb-3">
+  <?php foreach ([
+    ['All',         '',            count($allFacilities),          'blue',   'building'],
+    ['Available',   'available',   $countByStatus['available'],    'teal',   'check-circle'],
+    ['Maintenance', 'maintenance', $countByStatus['maintenance'],  'orange', 'tools'],
+    ['Inactive',    'inactive',    $countByStatus['inactive'],     'red',    'ban'],
+  ] as [$label,$s,$cnt,$color,$icon]): ?>
+  <div class="col-sm-6 col-xl-3">
+    <a href="?status=<?= $s ?>" style="text-decoration:none">
+    <div class="stat-card <?= $color ?> <?= $statusFilter===$s?'border border-2 border-primary':'' ?>" style="cursor:pointer;transition:transform .15s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
+      <div class="stat-icon <?= $color ?>"><i class="fas fa-<?= $icon ?>"></i></div>
+      <div><div class="stat-value"><?= $cnt ?></div><div class="stat-label"><?= $label ?></div></div>
+    </div>
+    </a>
+  </div>
+  <?php endforeach; ?>
+</div>
   <div class="card-body p-0">
     <div class="table-responsive">
       <table class="table table-hover datatable mb-0">
@@ -43,7 +67,7 @@ $pageTitle = 'Manage Facilities';
         <tr>
           <td class="text-muted small"><?= $i+1 ?></td>
           <td>
-            <div class="fw-semibold small"><?= sanitize($f['facility_name']) ?></div>
+            <a href="<?= APP_URL ?>/views/facilities/view.php?id=<?= $f['id'] ?>" class="fw-semibold small text-decoration-none"><?= sanitize($f['facility_name']) ?></a>
           </td>
           <td>
             <span class="badge bg-primary-subtle text-primary" style="background:#EFF6FF!important;color:#2563EB!important">

@@ -81,8 +81,8 @@ $currentDir  = basename(dirname($_SERVER['PHP_SELF']));
 
         <li class="<?= $currentDir === 'reports' && $currentPage === 'index.php' ? 'active' : '' ?>">
             <a href="<?= APP_URL ?>/views/reports/index.php">
-                <i class="fas fa-chart-bar"></i>
-                <span>Analytics</span>
+                <i class="fas fa-star"></i>
+                <span>Feedbacks</span>
             </a>
         </li>
 

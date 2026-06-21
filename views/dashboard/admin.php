@@ -78,22 +78,6 @@ new Chart(document.getElementById("bookingChart"), {
   },
   options: { responsive: true, plugins: { legend: { position: "top" } }, scales: { x: { stacked: false }, y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
 });
-new Chart(document.getElementById("statusChart"), {
-  type: "doughnut",
-  data: {
-    labels: ' . json_encode($statusLabels) . ',
-    datasets: [{ data: ' . json_encode($statusData) . ', backgroundColor: ["#F59E0B","#10B981","#EF4444","#94A3B8","#06B6D4"], borderWidth: 0, hoverOffset: 6 }]
-  },
-  options: { responsive: true, cutout: "65%", plugins: { legend: { position: "bottom", labels: { boxWidth: 10, font: { size: 11 } } } } }
-});
-new Chart(document.getElementById("facilityChart"), {
-  type: "bar",
-  data: {
-    labels: ' . json_encode($ftLabels) . ',
-    datasets: [{ label: "Count", data: ' . json_encode($ftData) . ', backgroundColor: "#2563EB", borderRadius: 6 }]
-  },
-  options: { indexAxis: "y", responsive: true, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } } }
-});
 </script>';
 ?>
 <?php include __DIR__ . '/../../includes/header.php'; ?>
@@ -125,7 +109,8 @@ new Chart(document.getElementById("facilityChart"), {
 <!-- Stat Cards -->
 <div class="row g-3 mb-4">
   <div class="col-xl-3 col-md-6" data-aos="fade-up" data-aos-delay="0">
-    <div class="stat-card">
+    <a href="<?= APP_URL ?>/views/users/manage.php" style="text-decoration:none">
+    <div class="stat-card" style="cursor:pointer;transition:transform .15s,box-shadow .15s" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.12)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
       <div class="stat-icon blue"><i class="fas fa-users"></i></div>
       <div>
         <div class="stat-value"><?= number_format($totalUsers) ?></div>
@@ -135,9 +120,11 @@ new Chart(document.getElementById("facilityChart"), {
         </div>
       </div>
     </div>
+    </a>
   </div>
   <div class="col-xl-3 col-md-6" data-aos="fade-up" data-aos-delay="60">
-    <div class="stat-card green">
+    <a href="<?= APP_URL ?>/views/facilities/manage.php" style="text-decoration:none">
+    <div class="stat-card green" style="cursor:pointer;transition:transform .15s,box-shadow .15s" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.12)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
       <div class="stat-icon green"><i class="fas fa-building"></i></div>
       <div>
         <div class="stat-value"><?= number_format($totalFacilities) ?></div>
@@ -145,9 +132,11 @@ new Chart(document.getElementById("facilityChart"), {
         <div class="stat-change up"><i class="fas fa-check-circle me-1"></i>Active campus resources</div>
       </div>
     </div>
+    </a>
   </div>
   <div class="col-xl-3 col-md-6" data-aos="fade-up" data-aos-delay="120">
-    <div class="stat-card orange">
+    <a href="<?= APP_URL ?>/views/bookings/manage.php" style="text-decoration:none">
+    <div class="stat-card orange" style="cursor:pointer;transition:transform .15s,box-shadow .15s" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.12)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
       <div class="stat-icon orange"><i class="fas fa-calendar-check"></i></div>
       <div>
         <div class="stat-value"><?= number_format($totalBookings) ?></div>
@@ -157,9 +146,11 @@ new Chart(document.getElementById("facilityChart"), {
         </div>
       </div>
     </div>
+    </a>
   </div>
   <div class="col-xl-3 col-md-6" data-aos="fade-up" data-aos-delay="180">
-    <div class="stat-card red">
+    <a href="<?= APP_URL ?>/views/reports/facility.php" style="text-decoration:none">
+    <div class="stat-card red" style="cursor:pointer;transition:transform .15s,box-shadow .15s" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.12)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
       <div class="stat-icon red"><i class="fas fa-exclamation-triangle"></i></div>
       <div>
         <div class="stat-value"><?= ($reportStats['open'] ?? 0) + ($reportStats['in_progress'] ?? 0) ?></div>
@@ -167,42 +158,27 @@ new Chart(document.getElementById("facilityChart"), {
         <div class="stat-change down"><i class="fas fa-tools me-1"></i><?= $reportStats['in_progress'] ?? 0 ?> in progress</div>
       </div>
     </div>
+    </a>
   </div>
 </div>
 
 <!-- Charts Row -->
 <div class="row g-3 mb-4">
-  <div class="col-xl-8" data-aos="fade-up">
+  <div class="col-12" data-aos="fade-up">
     <div class="card h-100">
       <div class="card-header d-flex align-items-center justify-content-between">
         <span><i class="fas fa-chart-line me-2 text-primary"></i>Weekly Booking Trends</span>
         <span class="badge bg-primary">Last 7 days</span>
       </div>
       <div class="card-body">
-        <canvas id="bookingChart" height="90"></canvas>
-      </div>
-    </div>
-  </div>
-  <div class="col-xl-4" data-aos="fade-up" data-aos-delay="60">
-    <div class="card h-100">
-      <div class="card-header"><i class="fas fa-chart-pie me-2 text-primary"></i>Booking Status</div>
-      <div class="card-body d-flex align-items-center justify-content-center">
-        <canvas id="statusChart" height="180"></canvas>
+        <canvas id="bookingChart" height="60"></canvas>
       </div>
     </div>
   </div>
 </div>
 
 <div class="row g-3 mb-4">
-  <div class="col-xl-4" data-aos="fade-up">
-    <div class="card h-100">
-      <div class="card-header"><i class="fas fa-building me-2 text-primary"></i>Facilities by Type</div>
-      <div class="card-body">
-        <canvas id="facilityChart" height="200"></canvas>
-      </div>
-    </div>
-  </div>
-  <div class="col-xl-8" data-aos="fade-up" data-aos-delay="60">
+  <div class="col-12" data-aos="fade-up">
     <div class="card h-100">
       <div class="card-header d-flex align-items-center justify-content-between">
         <span><i class="fas fa-clock me-2 text-warning"></i>Pending Bookings</span>
