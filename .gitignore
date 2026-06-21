@@ -1,0 +1,17 @@
+# Sensitive / generated files
+fix_passwords.php
+gen_hash.php
+
+# Uploaded files (keep folder structure via .gitkeep)
+uploads/avatars/*
+uploads/facilities/*
+!uploads/avatars/.gitkeep
+!uploads/facilities/.gitkeep
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.log
+*.swp
+.idea/
+.vscode/
