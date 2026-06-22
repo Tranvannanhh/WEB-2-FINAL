@@ -148,7 +148,6 @@ users ────────────────────────�
   │        │    booking_id    │   facility_id, name         │
   │        │    admin_id      │   quantity, status          │
   │        │    action, note  │                             │
-  │        │                  └── facility_images           │
   │        ├──< reviews            facility_id, image_path  │
   │        │    booking_id                                   │
   │        │    user_id, rating                             │
@@ -219,3 +218,6 @@ users ────────────────────────�
 ---
 
 *Built for VNUIS · Version 1.0.0 · PHP MVC Architecture*
+=======
+CAMPUS BOOKING SYSTEM
+>>>>>>> 061c5a8098ba5a196aaf2c32d2c1369c7b7c9385
