@@ -165,9 +165,9 @@ if ($_SESSION['role'] === 'admin') {
           <div class="u-card">
             <div class="u-card-header"><span><i class="fas fa-route"></i> Booking Workflow</span></div>
             <div class="u-card-body">
-              <?php $steps = ['Submit Request','Admin Review','Approved / Rejected','Completed → Review'];
+              <?php $steps = ['Submit Request','Approved / Rejected'];
               foreach ($steps as $i => $step): ?>
-              <div style="display:flex;align-items:center;gap:12px;margin-bottom:<?= $i<3?'16':'0' ?>px">
+              <div style="display:flex;align-items:center;gap:12px;margin-bottom:<?= $i<1?'16':'0' ?>px">
                 <div style="width:32px;height:32px;border-radius:50%;background:<?= $i===0?'var(--u-gold)':'var(--u-border)' ?>;color:<?= $i===0?'var(--u-primary)':'#94A3B8' ?>;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.78rem;flex-shrink:0">
                   <?= $i+1 ?>
                 </div>
