@@ -88,7 +88,7 @@ $pageTitle = 'Browse Facilities';
             </div>
             <div class="col-md-3">
               <label class="u-form-label">Type</label>
-              <select class="u-form-control" name="type" style="appearance:auto">
+              <select class="u-form-control" name="type" style="appearance:auto" onchange="this.form.submit()">
                 <option value="">All Types</option>
                 <option value="classroom"    <?= $type==='classroom'    ?'selected':'' ?>>Classroom</option>
                 <option value="lab"          <?= $type==='lab'          ?'selected':'' ?>>Laboratory</option>
@@ -96,6 +96,11 @@ $pageTitle = 'Browse Facilities';
                 <option value="auditorium"   <?= $type==='auditorium'   ?'selected':'' ?>>Auditorium</option>
                 <option value="equipment"    <?= $type==='equipment'    ?'selected':'' ?>>Equipment</option>
               </select>
+            </div>
+            <div class="col-md-auto d-flex align-items-end">
+              <button class="u-btn u-btn-gold" type="submit">
+                <i class="fas fa-search"></i>
+              </button>
             </div>
           </div>
         </form>
