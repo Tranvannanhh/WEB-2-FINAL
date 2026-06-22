@@ -40,12 +40,18 @@ if ($_SESSION['role'] === 'admin') {
 
 // ── STUDENT / LECTURER VIEW ──
 $facilityModel = new Facility();
-$type    = $_GET['type']    ?? '';
+$type    = $_GET['type']   ?? '';
 $search  = trim($_GET['search'] ?? '');
-$statusF = $_GET['status']  ?? 'available';
 
-if ($search) $facilities = $facilityModel->search($search, $type ?: null);
-else         $facilities = $facilityModel->getAll($type ?: null, $statusF ?: null);
+// Dùng getAll rồi filter search thủ công để kết hợp cả type + search
+$facilities = $facilityModel->getAll($type ?: null, 'available');
+if ($search) {
+    $facilities = array_filter($facilities, function($f) use ($search) {
+        return stripos($f['facility_name'], $search) !== false
+            || stripos($f['location'], $search) !== false
+            || stripos($f['description'] ?? '', $search) !== false;
+    });
+}
 
 $pageTitle = 'Browse Facilities';
 ?>
