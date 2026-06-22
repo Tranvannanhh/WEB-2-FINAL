@@ -9,8 +9,9 @@ $unreadCount = isLoggedIn() ? getUnreadNotificationCount($_SESSION['user_id']) :
             <i class="fas fa-bars text-white"></i>
         </button>
 
-        <!-- Page title -->
-        <span class="navbar-brand mb-0 text-white fw-semibold d-none d-md-block">
+        <!-- Page title / brand -->
+        <span class="navbar-brand mb-0 text-white fw-semibold d-none d-md-flex align-items-center gap-2">
+            <img src="<?= APP_URL ?>/assets/img/vnuis-logo.png" alt="VNU-IS Logo" style="width:32px;height:32px;object-fit:contain;border-radius:6px;background:#fff;padding:2px;">
             <?= isset($pageTitle) ? sanitize($pageTitle) : APP_NAME ?>
         </span>
 

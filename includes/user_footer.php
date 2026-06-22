@@ -3,9 +3,7 @@
     <div class="row g-4 mb-2">
       <div class="col-md-4">
         <div class="u-footer-logo">
-          <div style="width:36px;height:36px;border-radius:10px;background:var(--gold);display:flex;align-items:center;justify-content:center">
-            <i class="fas fa-calendar-check" style="color:var(--p-darker)"></i>
-          </div>
+          <img src="<?= APP_URL ?>/assets/img/vnuis-logo.png" alt="VNU-IS Logo" style="width:40px;height:40px;object-fit:contain;border-radius:10px;background:#fff;padding:3px;">
           VNUIS Booking
         </div>
         <p class="u-footer-desc">The official campus facility booking platform for VNUIS students and lecturers.</p>
