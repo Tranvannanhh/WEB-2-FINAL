@@ -192,6 +192,19 @@ function getRoleBadge($role) {
 }
 
 /**
+ * Get facility image URL — supports both full URLs (https://...) and local filenames
+ */
+function getFacilityImageUrl($imagePath) {
+    if (empty($imagePath)) return null;
+    // Already a full URL
+    if (str_starts_with($imagePath, 'http://') || str_starts_with($imagePath, 'https://')) {
+        return $imagePath;
+    }
+    // Local upload file
+    return APP_URL . '/uploads/facilities/' . $imagePath;
+}
+
+/**
  * Get facility type icon
  */
 function getFacilityIcon($type) {

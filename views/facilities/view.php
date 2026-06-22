@@ -61,7 +61,7 @@ if ($_SESSION['role'] === 'admin') {
           <div class="u-card mb-4" style="overflow:hidden">
             <div class="u-facility-hero">
               <?php if (!empty($facility['image_path'])): ?>
-              <img src="<?= APP_URL ?>/uploads/facilities/<?= sanitize($facility['image_path']) ?>" alt="">
+              <img src="<?= getFacilityImageUrl($facility['image_path']) ?>" alt="">
               <?php else: ?>
               <div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:6rem;color:rgba(255,255,255,.15)">
                 <i class="fas fa-<?= getFacilityIcon($facility['facility_type']) ?>"></i>

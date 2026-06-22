@@ -130,7 +130,7 @@ $pageTitle = 'Facilities';
           <div class="u-fcard">
             <div class="u-fcard-img">
               <?php if (!empty($f['image_path'])): ?>
-              <img src="<?= APP_URL ?>/uploads/facilities/<?= sanitize($f['image_path']) ?>" alt="">
+              <img src="<?= getFacilityImageUrl($f['image_path']) ?>" alt="">
               <?php endif; ?>
               <div class="u-fcard-img-overlay"></div>
               <div class="u-fcard-icon-bg"><i class="fas fa-<?= getFacilityIcon($f['facility_type']) ?>"></i></div>
