@@ -25,12 +25,8 @@ if (isLoggedIn()) redirect(APP_URL . '/index.php');
 
   <div class="auth-card" style="max-width:520px">
     <div class="auth-logo">
-      <div class="auth-logo-icon">
-        <svg viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M8 13h22M8 19h22M8 25h14" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
-          <rect x="11" y="8" width="4" height="6" rx="1.5" fill="white"/>
-          <rect x="23" y="8" width="4" height="6" rx="1.5" fill="white"/>
-        </svg>
+      <div class="auth-logo-icon" style="background:none;box-shadow:none;border-radius:0">
+        <img src="<?= APP_URL ?>/assets/is.png" alt="VNUIS Logo" style="width:90px;height:90px;object-fit:contain">
       </div>
       <div class="auth-title">Create Account</div>
       <div class="auth-subtitle">Join <?= APP_NAME ?> to book campus facilities</div>

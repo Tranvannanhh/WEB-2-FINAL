@@ -33,13 +33,8 @@ $msg = $_GET['msg'] ?? '';
   <div class="auth-card" data-aos="fade-up">
     <!-- Logo -->
     <div class="auth-logo">
-      <div class="auth-logo-icon">
-        <svg viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect width="38" height="38" rx="10" fill="white" fill-opacity=".15"/>
-          <path d="M8 13h22M8 19h22M8 25h14" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
-          <rect x="11" y="8" width="4" height="6" rx="1.5" fill="white"/>
-          <rect x="23" y="8" width="4" height="6" rx="1.5" fill="white"/>
-        </svg>
+      <div class="auth-logo-icon" style="background:none;box-shadow:none;border-radius:0">
+        <img src="<?= APP_URL ?>/assets/is.png" alt="VNUIS Logo" style="width:90px;height:90px;object-fit:contain">
       </div>
       <div class="auth-title"><?= APP_NAME ?></div>
       <div class="auth-subtitle">Sign in to your account to continue</div>
