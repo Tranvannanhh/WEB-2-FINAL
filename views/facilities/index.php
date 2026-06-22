@@ -74,54 +74,10 @@ $pageTitle = 'Browse Facilities';
   <div class="u-page-inner">
     <div class="container">
 
-      <!-- Search / Filter -->
-      <div class="u-search-bar" data-aos="fade-up">
-        <form method="GET" action="">
-          <div class="row g-2 align-items-end">
-            <div class="col-md-4">
-              <label class="u-form-label">Search</label>
-              <div class="u-input-group">
-                <i class="fas fa-search u-input-icon"></i>
-                <input type="text" class="u-form-control" name="search"
-                       value="<?= sanitize($search) ?>" placeholder="Facility name, location…">
-              </div>
-            </div>
-            <div class="col-md-3">
-              <label class="u-form-label">Type</label>
-              <select class="u-form-control" name="type" style="appearance:auto">
-                <option value="">All Types</option>
-                <option value="classroom"    <?= $type==='classroom'    ?'selected':'' ?>>Classroom</option>
-                <option value="lab"          <?= $type==='lab'          ?'selected':'' ?>>Laboratory</option>
-                <option value="meeting_room" <?= $type==='meeting_room' ?'selected':'' ?>>Meeting Room</option>
-                <option value="auditorium"   <?= $type==='auditorium'   ?'selected':'' ?>>Auditorium</option>
-                <option value="equipment"    <?= $type==='equipment'    ?'selected':'' ?>>Equipment</option>
-              </select>
-            </div>
-            <div class="col-md-2">
-              <label class="u-form-label">Status</label>
-              <select class="u-form-control" name="status" style="appearance:auto">
-                <option value="">All</option>
-                <option value="available"   <?= $statusF==='available'   ?'selected':'' ?>>Available</option>
-                <option value="maintenance" <?= $statusF==='maintenance' ?'selected':'' ?>>Maintenance</option>
-              </select>
-            </div>
-            <div class="col-md-3 d-flex gap-2">
-              <button class="u-btn u-btn-gold flex-fill" type="submit">
-                <i class="fas fa-search"></i> Search
-              </button>
-              <a href="?" class="u-btn u-btn-outline">
-                <i class="fas fa-times"></i>
-              </a>
-            </div>
-          </div>
-        </form>
-      </div>
-
       <?= displayFlash() ?>
 
       <p style="font-size:.83rem;color:var(--u-gray);margin-bottom:20px">
         Showing <strong><?= count($facilities) ?></strong> facilit<?= count($facilities)===1?'y':'ies' ?>
-        <?= $search ? ' for "<strong>'.sanitize($search).'</strong>"' : '' ?>
       </p>
 
       <?php if (empty($facilities)): ?>
