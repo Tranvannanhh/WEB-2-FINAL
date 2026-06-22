@@ -18,12 +18,7 @@ $navLinks = [
             <!-- Brand -->
             <a href="<?= APP_URL ?>/views/dashboard/index.php" class="u-brand">
                 <div class="u-brand-icon">
-                    <svg width="26" height="26" viewBox="0 0 28 28" fill="none">
-                        <rect width="28" height="28" rx="6" fill="white" fill-opacity="0.15"/>
-                        <path d="M7 10h14M7 14h14M7 18h10" stroke="white" stroke-width="2" stroke-linecap="round"/>
-                        <rect x="9" y="6" width="3" height="4" rx="1" fill="white"/>
-                        <rect x="16" y="6" width="3" height="4" rx="1" fill="white"/>
-                    </svg>
+                    <img src="<?= APP_URL ?>/assets/logo-vnuis.png" alt="VNUIS Logo" style="width:32px;height:32px;object-fit:contain">
                 </div>
                 <span class="u-brand-text">VNUIS <span>Booking</span></span>
             </a>
