@@ -175,34 +175,28 @@ if ($isAdmin) {
 <?php include __DIR__ . '/../../includes/user_navbar.php'; ?>
 
 <div class="u-page">
-
-  <div style="background:var(--u-primary);padding:60px 0 36px">
+  <div class="u-banner">
     <div class="container">
-      <div class="u-breadcrumb mb-2">
-        <a href="<?= APP_URL ?>/views/dashboard/index.php">Home</a>
-        <span class="u-breadcrumb-sep">›</span>
-        <span>Report an Issue</span>
-      </div>
-      <h1 style="font-family:var(--u-font-serif);color:#fff;font-size:2rem;margin-bottom:4px">Report an Issue</h1>
-      <p style="color:rgba(255,255,255,.6);font-size:.9rem;margin:0">Help us keep campus facilities in top condition</p>
+      <div class="u-bc"><a href="<?= APP_URL ?>/views/dashboard/index.php">Home</a><span class="u-bc-sep">›</span><span>Report an Issue</span></div>
+      <h1 class="u-banner-title">Report an Issue</h1>
+      <p class="u-banner-sub">Help us keep campus facilities safe and functional</p>
     </div>
   </div>
 
-  <div class="u-page-inner">
+  <div class="u-content">
     <div class="container">
-
       <?= displayFlash() ?>
-
       <div class="row g-4">
+
         <!-- Submit Form -->
         <div class="col-lg-5" data-aos="fade-up">
           <div class="u-card">
-            <div class="u-card-header"><span><i class="fas fa-flag" style="color:#EF4444"></i> Submit Issue Report</span></div>
+            <div class="u-card-hd"><span><i class="fas fa-flag" style="color:var(--red)"></i> Submit Issue Report</span></div>
             <div class="u-card-body">
               <form method="POST" novalidate>
-                <div class="mb-4">
-                  <label class="u-form-label">Facility <span style="color:#EF4444">*</span></label>
-                  <select class="u-form-control" name="facility_id" required style="appearance:auto">
+                <div class="u-field">
+                  <label class="u-label">Facility <span class="req">*</span></label>
+                  <select class="u-select" name="facility_id" required>
                     <option value="">— Select facility —</option>
                     <?php foreach ($facilities as $f): ?>
                     <option value="<?= $f['id'] ?>" <?= $preSelected===$f['id']?'selected':'' ?>>
@@ -211,20 +205,22 @@ if ($isAdmin) {
                     <?php endforeach; ?>
                   </select>
                 </div>
-                <div class="mb-4">
-                  <label class="u-form-label">Describe the Issue <span style="color:#EF4444">*</span></label>
-                  <textarea class="u-form-control" name="issue_description" rows="5"
-                            placeholder="Equipment malfunction, damage, safety concern…"
-                            required minlength="10" style="resize:vertical;min-height:110px"></textarea>
+                <div class="u-field">
+                  <label class="u-label">Describe the Issue <span class="req">*</span></label>
+                  <textarea class="u-textarea" name="issue_description" rows="5"
+                            placeholder="Equipment malfunction, damage, safety hazard…"
+                            required minlength="10"></textarea>
+                  <div class="u-form-hint">Minimum 10 characters.</div>
                 </div>
-                <div class="u-alert u-alert-info mb-4">
+                <div class="u-alert u-alert-info">
                   <i class="fas fa-info-circle"></i>
-                  Reports are reviewed by our facilities team and addressed promptly.
+                  Reports are reviewed by the facilities team and addressed promptly.
                 </div>
-                <button type="submit" name="submit_report" value="1"
-                        class="u-btn u-btn-lg w-100" style="justify-content:center;background:#EF4444;color:#fff;border-color:#EF4444;border-radius:50px">
-                  <i class="fas fa-paper-plane"></i> Submit Report
-                </button>
+                <div style="margin-top:18px">
+                  <button type="submit" name="submit_report" value="1" class="u-btn u-btn-danger u-btn-lg u-btn-block">
+                    <i class="fas fa-paper-plane"></i> Submit Report
+                  </button>
+                </div>
               </form>
             </div>
           </div>
@@ -233,29 +229,27 @@ if ($isAdmin) {
         <!-- My Reports -->
         <div class="col-lg-7" data-aos="fade-up" data-aos-delay="60">
           <div class="u-card">
-            <div class="u-card-header"><span><i class="fas fa-list"></i> My Submitted Reports</span></div>
+            <div class="u-card-hd"><span><i class="fas fa-list"></i> My Submitted Reports</span></div>
             <?php if (empty($reports)): ?>
             <div class="u-empty">
-              <i class="fas fa-clipboard-check d-block"></i>
+              <i class="fas fa-clipboard-check u-empty-icon" style="font-size:2.5rem"></i>
               <p>No reports submitted yet.</p>
             </div>
             <?php else: ?>
             <div style="overflow-x:auto">
               <table class="u-table">
-                <thead><tr>
-                  <th>#</th><th>Facility</th><th>Issue</th><th>Status</th><th>Date</th>
-                </tr></thead>
+                <thead><tr><th>#</th><th>Facility</th><th>Issue</th><th>Status</th><th>Date</th></tr></thead>
                 <tbody>
                 <?php foreach ($reports as $i => $r): ?>
                 <tr>
-                  <td style="color:#94A3B8;font-size:.82rem"><?= $i+1 ?></td>
+                  <td style="color:#94a3b8;font-size:.82rem"><?= $i+1 ?></td>
                   <td>
-                    <div style="font-weight:600;font-size:.86rem"><?= sanitize($r['facility_name']) ?></div>
-                    <div style="font-size:.73rem;color:var(--u-gray)"><?= sanitize($r['location']) ?></div>
+                    <div style="font-weight:700;font-size:.86rem"><?= sanitize($r['facility_name']) ?></div>
+                    <div style="font-size:.73rem;color:var(--muted)"><?= sanitize($r['location']) ?></div>
                   </td>
-                  <td style="font-size:.83rem;color:var(--u-gray);max-width:180px"><?= sanitize(truncate($r['issue_description'],60)) ?></td>
+                  <td style="font-size:.83rem;color:var(--muted);max-width:180px"><?= sanitize(truncate($r['issue_description'],60)) ?></td>
                   <td><?= getStatusBadge($r['report_status']) ?></td>
-                  <td style="font-size:.78rem;color:#94A3B8;white-space:nowrap"><?= timeAgo($r['created_at']) ?></td>
+                  <td style="font-size:.78rem;color:#94a3b8;white-space:nowrap"><?= timeAgo($r['created_at']) ?></td>
                 </tr>
                 <?php endforeach; ?>
                 </tbody>
@@ -265,10 +259,8 @@ if ($isAdmin) {
           </div>
         </div>
       </div>
-
     </div>
   </div>
 </div>
 
 <?php include __DIR__ . '/../../includes/user_footer.php'; ?>
-<script>const APP_URL = "<?= APP_URL ?>";</script>
