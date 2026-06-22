@@ -72,13 +72,16 @@ $(function () {
     });
   });
 
-  $(document).on('click', '.u-notif-item', function () {
+  $(document).on('click', '.u-notif-item', function (e) {
+    e.stopPropagation();
     const id   = $(this).data('id');
     const link = $(this).data('link');
     $(this).removeClass('unread');
     $.post(APP_URL + '/api/notifications.php', { action: 'mark_read', id: id });
-    if (link) {
-      window.location.href = link;
+    if (link && link !== '') {
+      setTimeout(function() {
+        window.location.href = link;
+      }, 100);
     }
   });
 

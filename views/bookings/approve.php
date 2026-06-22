@@ -18,10 +18,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (in_array($action, ['approved','rejected'])) {
         $bookingModel->updateStatus($id, $action);
         $bookingModel->logApproval($id, $_SESSION['user_id'], $action, $note ?: null);
-        $title = $action === 'approved' ? 'Booking Approved' : 'Booking Rejected';
+        $title = $action === 'approved' ? 'Booking Approved ✓' : 'Booking Rejected';
         $msg   = $action === 'approved'
-            ? "Your booking for {$booking['facility_name']} on " . formatDate($booking['booking_date']) . " has been approved. Please arrive on time."
-            : "Your booking for {$booking['facility_name']} on " . formatDate($booking['booking_date']) . " was rejected." . ($note ? " Reason: $note" : '');
+            ? "Your booking for {$booking['facility_name']} on " . formatDate($booking['booking_date']) . " has been approved. Please arrive on time.|" . APP_URL . "/views/bookings/view.php?id={$id}"
+            : "Your booking for {$booking['facility_name']} on " . formatDate($booking['booking_date']) . " was rejected." . ($note ? " Reason: $note" : '') . "|" . APP_URL . "/views/bookings/view.php?id={$id}";
         sendNotification($booking['user_id'], $title, $msg);
         flashMessage('success', "Booking has been $action.");
         redirect(APP_URL.'/views/bookings/manage.php');
