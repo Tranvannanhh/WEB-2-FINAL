@@ -9,12 +9,7 @@ $currentDir  = basename(dirname($_SERVER['PHP_SELF']));
     <div class="sidebar-brand">
         <a href="<?= APP_URL ?>/index.php" class="brand-link">
             <div class="brand-icon">
-                <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="28" height="28" rx="6" fill="#2563EB"/>
-                    <path d="M7 10h14M7 14h14M7 18h10" stroke="white" stroke-width="2" stroke-linecap="round"/>
-                    <rect x="9" y="6" width="3" height="4" rx="1" fill="white"/>
-                    <rect x="16" y="6" width="3" height="4" rx="1" fill="white"/>
-                </svg>
+                <img src="<?= APP_URL ?>/assets/logo-vnuis.png" alt="VNUIS Logo" style="width:28px;height:28px;object-fit:contain;border-radius:4px">
             </div>
             <span class="brand-text">VNUIS Booking</span>
         </a>
