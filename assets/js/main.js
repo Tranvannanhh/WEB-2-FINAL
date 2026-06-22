@@ -53,12 +53,16 @@ $(function () {
       }
       data.notifications.forEach(function (n) {
         const unreadCls = n.is_read == 0 ? 'unread' : '';
+        // parse optional link from message (format: "text|url")
+        const parts = n.message.split('|');
+        const msgText = parts[0];
+        const msgLink = parts.length > 1 ? parts[1].trim() : '';
         $list.append(`
-          <div class="notif-item ${unreadCls}" data-id="${n.id}">
+          <div class="notif-item ${unreadCls}" data-id="${n.id}" data-link="${msgLink}" style="cursor:pointer">
             <div class="notif-icon"><i class="fas fa-bell"></i></div>
             <div class="flex-1">
               <div class="notif-title">${escHtml(n.title)}</div>
-              <div class="notif-msg">${escHtml(n.message.substring(0, 80))}${n.message.length > 80 ? '…' : ''}</div>
+              <div class="notif-msg">${escHtml(msgText.substring(0, 80))}${msgText.length > 80 ? '…' : ''}</div>
               <div class="notif-time"><i class="fas fa-clock me-1"></i>${n.time_ago}</div>
             </div>
           </div>`);
@@ -84,10 +88,17 @@ $(function () {
   });
 
   /* Individual mark read on click */
-  $(document).on('click', '.notif-item', function () {
-    const id = $(this).data('id');
+  $(document).on('click', '.notif-item', function (e) {
+    e.stopPropagation();
+    const id   = $(this).data('id');
+    const link = $(this).data('link');
     $(this).removeClass('unread');
     $.post(APP_URL + '/api/notifications.php', { action: 'mark_read', id: id });
+    if (link && link !== '') {
+      setTimeout(function() {
+        window.location.href = link;
+      }, 100);
+    }
   });
 
 
