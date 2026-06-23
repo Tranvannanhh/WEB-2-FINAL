@@ -221,3 +221,6 @@ users ────────────────────────�
 =======
 CAMPUS BOOKING SYSTEM
 >>>>>>> 061c5a8098ba5a196aaf2c32d2c1369c7b7c9385
+## Contributors
+Repository updated.
+Documentation updated.
